@@ -116,7 +116,7 @@ class SiamUnet_diff(nn.Module):
         x41 = self.do41(F.relu(self.bn41(self.conv41(x3p))))
         x42 = self.do42(F.relu(self.bn42(self.conv42(x41))))
         x43_1 = self.do43(F.relu(self.bn43(self.conv43(x42))))
-        x4p = F.max_pool2d(x43_1, kernel_size=2, stride=2)
+        x4p1 = F.max_pool2d(x43_1, kernel_size=2, stride=2)
 
         ####################################################
         # Stage 1
@@ -140,12 +140,12 @@ class SiamUnet_diff(nn.Module):
         x41 = self.do41(F.relu(self.bn41(self.conv41(x3p))))
         x42 = self.do42(F.relu(self.bn42(self.conv42(x41))))
         x43_2 = self.do43(F.relu(self.bn43(self.conv43(x42))))
-        x4p = F.max_pool2d(x43_2, kernel_size=2, stride=2)
+        x4p2 = F.max_pool2d(x43_2, kernel_size=2, stride=2)
 
 
 
         # Stage 4d
-        x4d = self.upconv4(x4p)
+        x4d = self.upconv4(torch.abs(x4p1 - x4p2))
         pad4 = ReplicationPad2d((0, x43_1.size(3) - x4d.size(3), 0, x43_1.size(2) - x4d.size(2)))
         x4d = torch.cat((pad4(x4d), torch.abs(x43_1 - x43_2)), 1)
         x43d = self.do43d(F.relu(self.bn43d(self.conv43d(x4d))))
